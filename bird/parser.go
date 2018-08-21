@@ -64,7 +64,7 @@ func init() {
 	regex.routeCount.countRx = regexp.MustCompile(`^(\d+)\s+of\s+(\d+)\s+routes.*$`)
 
 	regex.bgp.channel = regexp.MustCompile("Channel ipv([46])")
-	regex.bgp.protocol = regexp.MustCompile(`^([\w\.:]+)\s+BGP\s+(\w+)\s+(\w+)\s+([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2})\s*(\w+)?.*$`)
+	regex.bgp.protocol = regexp.MustCompile(`^([\w\.:]+)\s+BGP\s+(\w+|\-\-\-)\s+(\w+)\s+([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2})\s*(\w+)?.*$`)
 	regex.bgp.numericValue = regexp.MustCompile(`^\s+([^:]+):\s+([\d]+)\s*$`)
 	regex.bgp.routes = regexp.MustCompile(`^\s+Routes:\s+(.*)`)
 	regex.bgp.stringValue = regexp.MustCompile(`^\s+([^:]+):\s+(.+)\s*$`)
@@ -532,6 +532,11 @@ func parseBgpStringValuesRx(line string, res Parsed) bool {
 	}
 
 	key := treatKey(groups[1])
+	if key == "state" {
+		// Don't parse the state of Bird 2.x channels for now
+		return false
+	}
+
 	res[key] = groups[2]
 	return true
 }
